@@ -3,39 +3,36 @@ import paramiko
 import re
 
 # username='pythonista', password='letmein'
+host = '192.168.6.82'
+port = '4114'
+user_mysql = 'root'
+password_mysql = ''
+
 
 try:
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect('192.168.56.101', port=22, username='pyautomation', password='111')
+    ssh.connect(host, int(port), username='pythonista', password='letmein')
 except:
-    print('jhh')
+    print('can not connect')
 else:
-    stdin, stdout, stderr  = ssh.exec_command('ls -l | grep ^-')
+    stdin, stdout, stderr  = ssh.exec_command('grep -R password= *')
     data = stdout.read()
-    pattern = re.compile('[0-9]{2}:[0-9]{2}(.+)')
-    files = pattern.findall(data)
-    print(files)
+    print(data)
+    pattern = re.compile('password=([a-zA-Z0-9]+)')
+    password = pattern.findall(data)
+    print(password)
+
 
     # scan dir for password
 finally:
     ssh.close()
 
-def read_file_by_line(name_file):
-    with open(name_file, 'r') as f:
-        while True:
-            line = f.readline()
-            if not line:
-                break
-            yield line
+def get_ssh_connector(post):
+    conn = None
+    try:
+        conn = paramiko.ssh
+    except:
+        pass
 
 
-def read_file(name_file):
-    t = []
-    line_gen = read_file_by_line(name_file)
-    for line in line_gen:
-          t.append(line)
-    return t
-
-s = read_file('1.txt')
-print s
