@@ -15,7 +15,7 @@ def get_alt_open_ports(ip):
         if not res == 0:
             ports = get_open_ports(ip)
         else:
-            os.system('sudo nmap {} -p 4100-4200 | grep tcp > 1.txt'.format(ip))
+            os.system('sudo nmap {} -p {} | grep tcp > 1.txt'.format(ip, '1-100'))
             with open('1.txt', 'r') as f:
                 text = f.read()
                 patt = re.compile('([0-9]{1,5})')
@@ -30,8 +30,8 @@ def get_alt_open_ports(ip):
 #  find available computers
 def ping_computers():
     computers = []
-    for i in xrange(70,90):
-        host = '192.168.6.'+str(i)
+    for i in xrange(100,103):
+        host = '192.168.56.'+str(i)
         print(host)
         response = os.system('ping -c 1 ' + host)
         if response == 0:
@@ -41,7 +41,7 @@ def ping_computers():
 # find open ports
 def get_open_ports(ip):
     open_ports = []
-    for port in xrange(4100,4200):
+    for port in xrange(1,1000):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(0.01)
         try:
