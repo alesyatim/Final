@@ -93,31 +93,22 @@ class DB(object):
         command = 'cd /home/{}; md5sum * >{}/list.txt'.format('pyautomation', cur_parth)
         os.system(command)
         file_gen = read_file_by_line('list.txt')
-        i=0
         cur = self.cur
         for line in file_gen:
-            i+=1
-            if i <3:
-                continue
             data = line.split()
             print(data[0], data[1])
-            query = 'INSERT INTO alesya(file_name, hash_sum) VALUES(\'{}\', \'{}\');'.format(data[1], data[0])
-            print(query)
-            cur.execute(query)
+
             try:
-                pass
-                # query = 'INSERT INTO alesya(file_name, hash_sum) VALUES(\'{}\', \'{}\');'.format(data[1], data[0])
-                # print(query)
-                # cur.execute(query)
+                query = 'INSERT INTO alesya(file_name, hash_sum) VALUES(\'{}\', \'{}\');'.format(data[1], data[0])
+                cur.execute(query)
+                self.connector.commit()
             except:
                 print('Error: insert into table')
+                self.connector.rollback()
 
 
     def close(self):
         self.connector.close()
-
-
-
 
 
 db = DB()
