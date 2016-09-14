@@ -1,19 +1,12 @@
 import mysql
 import mysql.connector
-from mysql.connector import MySQLConnection
+# from mysql.connector import MySQLConnection
 import os
 
 user_mysql = 'root'
-password_mysql = '111'
+password_mysql = 'letmein'
 name_db = 'Final_Test'
-# name_db = 'mysql'
 
-#
-# con = mysql.connector.connect(user=user_mysql, password=password_mysql)
-# cur = con.cursor()
-# s= 'select'
-# cur.execute(s)
-# cur.fetchall
 def read_file_by_line(file_name):
     with open(file_name, 'r') as f:
         while True:
@@ -110,13 +103,13 @@ class DB(object):
     def close(self):
         self.connector.close()
 
-
-db = DB()
-db.is_db_exists()
-db.create_db()
-db.create_table()
-db.fill_table()
-db.close()
+if __name__ == '__main__':
+    db = DB()
+    db.is_db_exists()
+    db.create_db()
+    db.create_table()
+    db.fill_table()
+    db.close()
 
 
 
