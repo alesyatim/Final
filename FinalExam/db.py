@@ -1,11 +1,7 @@
 import mysql
 import mysql.connector
-# from mysql.connector import MySQLConnection
 import os
-
-user_mysql = 'root'
-password_mysql = 'letmein'
-name_db = 'Final_Test'
+import sys
 
 def read_file_by_line(file_name):
     with open(file_name, 'r') as f:
@@ -16,7 +12,7 @@ def read_file_by_line(file_name):
             yield line
 
 class DB(object):
-    def __init__(self, host='127.0.0.1', login = user_mysql, password=password_mysql, db=name_db):
+    def __init__(self, host, login, password, db):
         self.host = host
         self.login = login
         self.password = password
@@ -30,7 +26,7 @@ class DB(object):
     def get_connect(self):
         connection = None
         try:
-            connection = mysql.connector.connect(host=self.host, db='', user=self.login, password=self.password)
+            connection = mysql.connector.connect(host=self.host, db='', user=self.login, password = self.password)
         except:
             print('Connection err')
         return connection
@@ -48,49 +44,50 @@ class DB(object):
             query = 'SHOW databases;'
             cur = self.cur
             cur.execute(query)
-            # data = cur.fetchall()
-            # print(data, self.db)
             for _ in cur.fetchall():
                 if _[0] == self.db:
                     return True
             return False
         except:
-            print('err')
+            print('Error: Show databases')
 
     def create_db(self):
         try:
             cur = self.cur
             if not self.is_db_exists():
-                # cur=self.cur
                 query = 'CREATE database {};'.format(self.db)
                 cur.execute(query)
             query = 'USE {}'.format(self.db)
             cur.execute(query)
-            print(cur, self.cur)
-            #self.cur = cur
+            return True
         except:
             print('Error: create db')
+            return False
 
     def create_table(self):
         cur = self.cur
         try:
-            query = 'DROP TABLE alesya;'
-            cur.execute(query)
+            try:
+                query = 'DROP TABLE alesya;'
+                cur.execute(query)
+            except:
+                print('Warning: drop table')
             query = 'CREATE TABLE alesya(file_name VARCHAR(60) UNIQUE NOT NULL PRIMARY KEY, hash_sum VARCHAR(64) NOT NULL);'
             cur.execute(query)
+            return True
         except:
             print('Error: create table')
+            return False
 
     def fill_table(self):
-        cur_parth = os.getcwd()  # directory with project
-        command = 'cd /home/{}; md5sum * >{}/list.txt'.format('pyautomation', cur_parth)
+        cur_parth = os.getcwd()
+        command = 'cd /home/{}; md5sum * >{}/list.txt'.format('pythonista', cur_parth)
         os.system(command)
         file_gen = read_file_by_line('list.txt')
         cur = self.cur
         for line in file_gen:
             data = line.split()
             print(data[0], data[1])
-
             try:
                 query = 'INSERT INTO alesya(file_name, hash_sum) VALUES(\'{}\', \'{}\');'.format(data[1], data[0])
                 cur.execute(query)
@@ -99,22 +96,25 @@ class DB(object):
                 print('Error: insert into table')
                 self.connector.rollback()
 
-
     def close(self):
         self.connector.close()
 
 if __name__ == '__main__':
-    db = DB()
-    db.is_db_exists()
-    db.create_db()
-    db.create_table()
-    db.fill_table()
-    db.close()
 
+    name_db = 'Final_Test'
 
-
-
-
-
-
-
+    if not len(sys.argv)==3:
+        print('Error: Check params')
+    else:
+        user_mysql = sys.argv[1]
+        password_mysql = sys.argv[2]
+        db = DB('127.0.0.1', user_mysql, password_mysql, name_db)
+        db.is_db_exists()
+        if not db.create_db():
+            print('DB did not create')
+        else:
+            if not db.create_table():
+                print('Table did not create')
+            else:
+                db.fill_table()
+                db.close()
