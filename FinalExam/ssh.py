@@ -27,7 +27,7 @@ class SSH(object):
     def get_mysql_info(self):
         info = {
             'mysql_login':self.mysql_login,
-             'mysql_password':self.mysql_password
+            'mysql_password':self.mysql_password
         }
         return info
 
@@ -37,13 +37,12 @@ class SSH(object):
         server_info.update(mysql_imfo)
         return server_info
 
-
     def try_ssh_con(self, host, port, user, passw):
         try:
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             ssh.connect(host, int(port), username=user, password=passw)
-            # ssh.close()
+            #ssh.close()
         except:
             ssh.close()
             print('ssh: can not connect')
@@ -69,8 +68,10 @@ class SSH(object):
         stdin, stdout, stderr = ssh_conn.exec_command('grep -R password= *')
         data = stdout.read()
         pattern = re.compile('password=([a-zA-Z0-9]+)')
-        return pattern.findall(data)
-
+        passwords = pattern.findall(data)
+        if not len(passwords) == 0:
+            self.mysql_password = passwords[0]
+        return self.mysql_password
 
     def save_server_info_json(self, **server_info):
         json.dump(server_info, open('alesya_server.json', 'w'))
@@ -90,7 +91,7 @@ class SSH(object):
             path = '/home/{}/db.py'.format(self.username)
             sftp.put('db.py', path)
             sftp.close()
-            ssh.close()
+            #ssh.close()
             return True
         except:
             print('Err: ssh copy file')
@@ -123,8 +124,6 @@ if __name__ == "__main__" :
     if server and ssh_port and ssh_con:
         ssh.save_server_info_json(**ssh.get_server_info())
         passwords = ssh.find_password(ssh_con)
-        if len(passwords) != 0:
-            password_mysql = passwords[0]
         ssh.save_mysql_info_yaml(**ssh.get_mysql_info())
         ssh.save_backup(**ssh.get_all_info())
 
