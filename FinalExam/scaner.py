@@ -5,11 +5,11 @@ import json
 
 class ScanNet(object):
     def __init__(self):
-        self.start_ip = '192.168.6.'
-        self.begin_ip = 70
-        self.end_ip = 90
-        self.begin_port = 4100
-        self.end_port = 4200
+        self.start_ip = '192.168.56.' # '192.168.6.'
+        self.begin_ip = 100 # 70
+        self.end_ip = 103  # 90
+        self.begin_port = 1 # 4100
+        self.end_port = 100 # 4200
         self.computers = []
         self.struct_net = {}
 
