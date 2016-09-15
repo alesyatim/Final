@@ -95,9 +95,22 @@ class DB(object):
             except:
                 print('Error: insert into table')
                 self.connector.rollback()
+                return False
+        return True
 
     def close(self):
         self.connector.close()
+
+    def run(self):
+        if not self.create_db():
+            return False
+        if not self.create_table():
+            return False
+        if not self.fill_table():
+            return False
+        self.close()
+        return True
+
 
 if __name__ == '__main__':
 
@@ -109,12 +122,17 @@ if __name__ == '__main__':
         user_mysql = sys.argv[1]
         password_mysql = sys.argv[2]
         db = DB('127.0.0.1', user_mysql, password_mysql, name_db)
-        db.is_db_exists()
-        if not db.create_db():
-            print('DB did not create')
+        if db.run:
+            print('DB created!')
         else:
-            if not db.create_table():
-                print('Table did not create')
-            else:
-                db.fill_table()
-                db.close()
+            print('Error: DB')
+
+        # db.is_db_exists()
+        # if not db.create_db():
+        #     print('DB did not create')
+        # else:
+        #     if not db.create_table():
+        #         print('Table did not create')
+        #     else:
+        #         db.fill_table()
+        #         db.close()
